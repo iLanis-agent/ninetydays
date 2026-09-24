@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NinetyDays - Calculator</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; background:#0c1015; color:#e8edf5; min-height:100vh; }
+  .wrap { max-width:920px; margin:0 auto; padding:36px 20px 80px; }
+  header { display:flex; justify-content:space-between; align-items:center; margin-bottom:28px; }
+  .logo { font-weight:800; font-size:20px; }
+  .logo span { color:#67e8f9; }
+  .home { color:#8b9cb4; text-decoration:none; font-size:14px; }
+  .home:hover { color:#fff; }
+  .panel { background:#121826; border:1px solid #22304a; border-radius:16px; padding:22px; margin-bottom:22px; }
+  label { display:block; font-size:12.5px; font-weight:600; color:#8b9cb4; margin-bottom:6px; text-transform:uppercase; letter-spacing:.05em; }
+  input { background:#0c1015; border:1px solid #2a3a58; border-radius:10px; color:#e8edf5; padding:11px 12px; font-size:15px; outline:none; width:100%; }
+  input:focus { border-color:#06b6d4; }
+  .stay-row { display:grid; grid-template-columns:1fr 1fr auto; gap:10px; align-items:end; margin-bottom:10px; }
+  button.add { background:transparent; border:1px solid #2a3a58; color:#67e8f9; font-size:14px; font-weight:700; padding:11px 18px; border-radius:10px; cursor:pointer; }
+  button.add:hover { border-color:#06b6d4; }
+  .remove { background:none; border:0; color:#4e5d75; cursor:pointer; font-size:16px; padding:11px; }
+  .remove:hover { color:#f87171; }
+  .stat-row { display:flex; flex-wrap:wrap; gap:30px; align-items:baseline; }
+  .big { font-size:clamp(44px,7vw,64px); font-weight:800; letter-spacing:-.02em; background:linear-gradient(90deg,#67e8f9,#7dd3fc); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .big.warn { background:linear-gradient(90deg,#fca5a5,#f87171); -webkit-background-clip:text; background-clip:text; }
+  .stat-num { font-size:24px; font-weight:700; color:#fff; }
+  .stat-label { color:#8b9cb4; font-size:13.5px; }
+  .bar { height:10px; background:#1a2436; border-radius:999px; margin-top:16px; overflow:hidden; }
+  .bar > div { height:100%; background:linear-gradient(90deg,#06b6d4,#0ea5e9); border-radius:999px; transition:width .3s; }
+  .seg-label { margin-bottom:14px; font-size:14px; font-weight:700; color:#fff; }
+  .err { background:rgba(248,113,113,.10); border:1px solid rgba(248,113,113,.35); color:#fca5a5; font-size:13.5px; padding:10px 14px; border-radius:10px; margin-top:10px; }
+  .result-big { font-size:clamp(36px,6vw,52px); font-weight:800; color:#fff; }
+  .result-sub { color:#a5b8d4; font-size:15px; margin-top:6px; line-height:1.5; }
+  .roll { display:flex; gap:4px; margin-top:14px; flex-wrap:wrap; }
+  .rd { width:26px; text-align:center; font-size:10px; color:#4e5d75; }
+  .rd .cell { height:34px; border-radius:6px; background:#1a2436; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; color:#67e8f9; margin-bottom:3px; }
+  .rd .cell.full { background:rgba(248,113,113,.18); color:#fca5a5; }
+  .hidden { display:none; }
+  .check-grid { display:grid; grid-template-columns:1fr auto; gap:14px; align-items:end; }
+  button.go { background:linear-gradient(90deg,#06b6d4,#0ea5e9); border:0; color:#fff; font-size:15px; font-weight:700; padding:12px 24px; border-radius:12px; cursor:pointer; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header><div class="logo">Ninety<span>Days</span></div><a class="home" href="index.html">&#8592; Home</a></header>
+
+  <div class="panel">
+    <div class="seg-label">1. Your past Schengen stays (last 6 months matter most)</div>
+    <div id="stays"></div>
+    <button class="add" id="addStay">+ Add a stay</button>
+    <div id="errs"></div>
+  </div>
+
+  <div class="panel" id="statusPanel">
+    <div class="seg-label">2. Where you stand today</div>
+    <div class="stat-row">
+      <div><div class="big" id="remaining">90</div><div class="stat-label">days remaining in today's window</div></div>
+      <div><div class="stat-num" id="used">0</div><div class="stat-label">days used (of 90)</div></div>
+      <div><div class="stat-num" id="windowDays">180</div><div class="stat-label">window, days</div></div>
+    </div>
+    <div class="bar"><div id="barFill" style="width:0%"></div></div>
+    <div class="result-sub" id="freeNote" style="margin-top:12px"></div>
+  </div>
+
+  <div class="panel">
+    <div class="seg-label">3. How long could I stay if I enter on...</div>
+    <div class="check-grid">
+      <div><label for="enterDate">Entry date</label><input type="date" id="enterDate"></div>
+      <button class="go" id="check">Check max stay</button>
+    </div>
+    <div id="maxOut" style="margin-top:16px"></div>
+  </div>
+
+  <div class="panel hidden" id="rollPanel">
+    <div class="seg-label">When days free up (next 30 days)</div>
+    <div class="roll" id="roll"></div>
+  </div>
+</div>
+<script src="engine.js"></script>
+<script>
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  var LS = 'ninetydays-stays';
+  var stays = [];
+  try { stays = JSON.parse(localStorage.getItem(LS) || '[]'); } catch (e) {}
+
+  function save() { try { localStorage.setItem(LS, JSON.stringify(stays)); } catch (e) {} }
+
+  function renderStays() {
+    $('stays').innerHTML = stays.map(function (s, i) {
+      return '<div class="stay-row">'
+        + '<div><label>Entry</label><input type="date" data-i="' + i + '" data-f="start" value="' + s.start + '"></div>'
+        + '<div><label>Exit</label><input type="date" data-i="' + i + '" data-f="end" value="' + s.end + '"></div>'
+        + '<button class="remove" data-i="' + i + '" title="Remove stay">&#10005;</button></div>';
+    }).join('');
+    validate();
+  }
+
+  function validate() {
+    var errs = SchengenEngine.validate(stays.filter(function (s) { return s.start && s.end; }));
+    $('errs').innerHTML = errs.map(function (e) { return '<div class="err">' + e + '</div>'; }).join('');
+    renderStatus();
+  }
+
+  function renderStatus() {
+    var valid = stays.filter(function (s) { return s.start && s.end && SchengenEngine.parse(s.end) >= SchengenEngine.parse(s.start); });
+    var today = new Date();
+    var st = SchengenEngine.status(valid, SchengenEngine.iso(today));
+    $('remaining').textContent = st.remaining;
+    $('remaining').className = 'big' + (st.remaining <= 10 ? ' warn' : '');
+    $('used').textContent = st.used;
+    $('barFill').style.width = Math.min(100, 100 * st.used / 90) + '%';
+    $('freeNote').textContent = st.remaining === 0
+      ? (st.nextFree ? 'Window is full. Days start freeing up on ' + st.nextFree + '.' : 'Window is full.')
+      : 'You could enter the Schengen area today and stay up to ' + st.remaining + ' days.';
+    // roll-off
+    var ro = SchengenEngine.rollOff(valid, SchengenEngine.iso(today), 30);
+    $('rollPanel').classList.remove('hidden');
+    $('roll').innerHTML = ro.map(function (r) {
+      var dm = r.date.slice(5).split('-');
+      return '<div class="rd"><div class="cell' + (r.remaining === 0 ? ' full' : '') + '">' + r.remaining + '</div>' + (+dm[1]) + '/' + (+dm[0]) + '</div>';
+    }).join('');
+    // max stay for the chosen entry date
+    if ($('enterDate').value) checkMax();
+  }
+
+  function checkMax() {
+    var valid = stays.filter(function (s) { return s.start && s.end && SchengenEngine.parse(s.end) >= SchengenEngine.parse(s.start); });
+    var ms = SchengenEngine.maxStay(valid, $('enterDate').value);
+    $('maxOut').innerHTML = ms.days === 0
+      ? '<div class="result-big">0 days</div><div class="result-sub">Your window is exhausted around that date - try a later entry, or check the roll-off forecast.</div>'
+      : '<div class="result-big">' + ms.days + ' days</div><div class="result-sub">Entering on ' + $('enterDate').value + ', you can stay until <b>' + ms.lastDay + '</b> (inclusive).</div>';
+  }
+
+  $('addStay').addEventListener('click', function () {
+    stays.push({ start: '', end: '' });
+    save(); renderStays();
+  });
+  $('stays').addEventListener('input', function (e) {
+    var i = e.target.getAttribute('data-i'), f = e.target.getAttribute('data-f');
+    if (i === null) return;
+    stays[+i][f] = e.target.value;
+    save(); validate();
+  });
+  $('stays').addEventListener('click', function (e) {
+    if (!e.target.classList.contains('remove')) return;
+    stays.splice(+e.target.getAttribute('data-i'), 1);
+    save(); renderStays();
+  });
+  $('check').addEventListener('click', checkMax);
+  $('enterDate').addEventListener('input', checkMax);
+
+  // default entry date: today + 14
+  var def = new Date(); def.setDate(def.getDate() + 14);
+  $('enterDate').value = SchengenEngine.iso(def);
+  renderStays();
+  if (!stays.length) { /* start empty */ }
+})();
+</script>
+</body>
+</html>
