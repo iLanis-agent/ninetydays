@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NinetyDays - Schengen 90/180 Calculator</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; background:#0c1015; color:#e8edf5; min-height:100vh; }
+  .wrap { max-width:860px; margin:0 auto; padding:64px 24px 80px; }
+  .badge { display:inline-block; background:rgba(103,232,249,.12); color:#67e8f9; font-size:13px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; padding:6px 14px; border-radius:999px; border:1px solid rgba(103,232,249,.25); margin-bottom:24px; }
+  h1 { font-size:clamp(38px,6vw,60px); line-height:1.05; font-weight:800; letter-spacing:-.02em; }
+  h1 .accent { background:linear-gradient(90deg,#67e8f9,#7dd3fc); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .sub { margin-top:20px; font-size:19px; line-height:1.6; color:#95a5bb; max-width:640px; }
+  .cta { display:inline-block; margin-top:36px; background:linear-gradient(90deg,#06b6d4,#0ea5e9); color:#fff; font-size:17px; font-weight:700; padding:16px 34px; border-radius:14px; text-decoration:none; box-shadow:0 8px 30px rgba(14,165,233,.35); transition:transform .15s; }
+  .cta:hover { transform:translateY(-2px); }
+  .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:18px; margin-top:64px; }
+  .card { background:#121826; border:1px solid #22304a; border-radius:16px; padding:24px; }
+  .card h3 { font-size:17px; margin-bottom:10px; color:#fff; }
+  .card p { font-size:14.5px; line-height:1.55; color:#8b9cb4; }
+  .icon { font-size:26px; margin-bottom:12px; }
+  footer { margin-top:72px; text-align:center; color:#4e5d75; font-size:13px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <span class="badge">NinetyDays</span>
+  <h1>The 90/180 rule,<br><span class="accent">finally readable.</span></h1>
+  <p class="sub">Schengen's rolling window is the most misread rule in travel - it isn't "90 days per half year," it's 90 inside any 180-day window, recalculated daily. Enter your past stays and see exactly what you can do next, before the border guard does the math for you.</p>
+  <a class="cta" href="app.html">Check my days</a>
+  <div class="grid">
+    <div class="card"><div class="icon">🧮</div><h3>True rolling window</h3><p>Every stay is expanded day by day and checked against the real 180-day window - entry and exit days both count, just like at the border.</p></div>
+    <div class="card"><div class="icon">📅</div><h3>Max stay from any date</h3><p>Pick an entry day and see the exact number of days you can stay and the last safe exit day.</p></div>
+    <div class="card"><div class="icon">⏳</div><h3>Roll-off forecast</h3><p>When your window is full, see the day-by-day schedule of when days free up again.</p></div>
+    <div class="card"><div class="icon">🛡️</div><h3>Overstay guard</h3><p>Overlap detection and limit checks flag problems in your history before an official does.</p></div>
+  </div>
+  <footer>Built by the App Factory - free, private, everything stays in your browser. Not legal advice.</footer>
+</div>
+</body>
+</html>
